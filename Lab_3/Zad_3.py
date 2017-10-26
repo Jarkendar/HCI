@@ -80,13 +80,16 @@ def gradient_hsv_bw(v):
     return cs.hsv_to_rgb(h, s, v)
 
 
+def calculateHue(start, all, value):
+    return ((start + value * start * all) / 360) % 1
+
+
 def gradient_hsv_gbr(v):
-    h = 240 * v + 120
     if v <= 0.5:
         s = abs(-abs(200 * v - 0.25) + 50) + 50
     else:
         s = abs(-abs(200 * (v - 0.5) - 0.25) + 50) + 50
-    return cs.hsv_to_rgb(h / 360, s / 100, 1)
+    return cs.hsv_to_rgb(calculateHue(120, 2, v), s / 100, 1)
 
 
 def gradient_hsv_unknown(v):
