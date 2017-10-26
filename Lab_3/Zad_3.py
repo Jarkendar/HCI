@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import division  # Division in Python 2.7
 import matplotlib
 
@@ -57,24 +55,24 @@ def gradient_rgb_gbr(v):
     pieces = 2
     colors = [[0, 1, 0], [0, 0, 1], [1, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
-    r, g, b = inte(colors[i], colors[i + 1], i + 1, pieces, v)
-    return (r, g, b)
+    r, g, b = interpolColor(colors[i], colors[i + 1], i + 1, pieces, v)
+    return r, g, b
 
 
 def gradient_rgb_gbr_full(v):
     pieces = 4
     colors = [[0, 1, 0], [0, 1, 1], [0, 0, 1], [1, 0, 1], [1, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
-    r, g, b = inte(colors[i], colors[i + 1], i + 1, pieces, v)
-    return (r, g, b)
+    r, g, b = interpolColor(colors[i], colors[i + 1], i + 1, pieces, v)
+    return r, g, b
 
 
 def gradient_rgb_wb_custom(v):
     pieces = 7
     colors = [[1, 1, 1], [1, 0, 1], [0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
-    r, g, b = inte(colors[i], colors[i + 1], i + 1, pieces, v)
-    return (r, g, b)
+    r, g, b = interpolColor(colors[i], colors[i + 1], i + 1, pieces, v)
+    return r, g, b
 
 
 def gradient_hsv_bw(v):
@@ -84,7 +82,7 @@ def gradient_hsv_bw(v):
 
 def gradient_hsv_gbr(v):
     h = 240 * v + 120
-    if (v <= 0.5):
+    if v <= 0.5:
         s = abs(-abs(200 * v - 0.25) + 50) + 50
     else:
         s = abs(-abs(200 * (v - 0.5) - 0.25) + 50) + 50
@@ -100,24 +98,24 @@ def gradient_hsv_custom(v):
 
 
 def calculateValuePieceOfColor(inColor, outColor, numberOfPiece, countAllPieces, value):
-    if (inColor > outColor):
+    if inColor > outColor:
         return numberOfPiece - countAllPieces * value
     else:
         return countAllPieces * value - numberOfPiece + 1
 
 
-def inte(fromColor, toColor, numberOfPiece, countAllPieces, value):
+def interpolColor(fromColor, toColor, numberOfPiece, countAllPieces, value):
     rFrom, gFrom, bFrom = fromColor
     rTo, gTo, bTo = toColor
-    if (rFrom != rTo):
+    if rFrom != rTo:
         r = calculateValuePieceOfColor(rFrom, rTo, numberOfPiece, countAllPieces, value)
     else:
         r = rFrom
-    if (gFrom != gTo):
+    if gFrom != gTo:
         g = calculateValuePieceOfColor(gFrom, gTo, numberOfPiece, countAllPieces, value)
     else:
         g = gFrom
-    if (bFrom != bTo):
+    if bFrom != bTo:
         b = calculateValuePieceOfColor(bFrom, bTo, numberOfPiece, countAllPieces, value)
     else:
         b = bFrom
