@@ -55,7 +55,7 @@ def gradient_rgb_gbr(v):
     pieces = 2
     colors = [[0, 1, 0], [0, 0, 1], [1, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
-    r, g, b = interpolColor(colors[i], colors[i + 1], i + 1, pieces, v)
+    r, g, b = interpolateColor(colors[i], colors[i + 1], i + 1, pieces, v)
     return r, g, b
 
 
@@ -63,7 +63,7 @@ def gradient_rgb_gbr_full(v):
     pieces = 4
     colors = [[0, 1, 0], [0, 1, 1], [0, 0, 1], [1, 0, 1], [1, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
-    r, g, b = interpolColor(colors[i], colors[i + 1], i + 1, pieces, v)
+    r, g, b = interpolateColor(colors[i], colors[i + 1], i + 1, pieces, v)
     return r, g, b
 
 
@@ -71,7 +71,7 @@ def gradient_rgb_wb_custom(v):
     pieces = 7
     colors = [[1, 1, 1], [1, 0, 1], [0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
-    r, g, b = interpolColor(colors[i], colors[i + 1], i + 1, pieces, v)
+    r, g, b = interpolateColor(colors[i], colors[i + 1], i + 1, pieces, v)
     return r, g, b
 
 
@@ -107,7 +107,7 @@ def calculateValuePieceOfColor(inColor, outColor, numberOfPiece, countAllPieces,
         return countAllPieces * value - numberOfPiece + 1
 
 
-def interpolColor(fromColor, toColor, numberOfPiece, countAllPieces, value):
+def interpolateColor(fromColor, toColor, numberOfPiece, countAllPieces, value):
     rFrom, gFrom, bFrom = fromColor
     rTo, gTo, bTo = toColor
     if rFrom != rTo:
