@@ -121,19 +121,27 @@ def gradient_hsv_bw(v):
 
 
 def gradient_hsv_gbr(v):
-    h, s, v = cs.rgb_to_hsv(v, v, v)
-    # todo
-    return cs.hsv_to_rgb(0, 0, 0)
+    s = 0
+    b = 100
+    start = 120
+    h = 240 * v + start
+    if (v<=0.5):
+        s = abs(-abs(200*v-0.25)+50)+50
+    else:
+        s = abs(-abs(200*(v-0.5)-0.25)+50)+50
+
+    return cs.hsv_to_rgb(h/360, s/100, b/100)
 
 
 def gradient_hsv_unknown(v):
-    # TODO
-    return cs.hsv_to_rgb(0, 0, 0)
+    h = 120-120*v
+    s = 50
+    b = 100
+    return cs.hsv_to_rgb(h/360, s/100, b/100)
 
 
 def gradient_hsv_custom(v):
-    # TODO
-    return cs.hsv_to_rgb(0, 0, 0)
+    return cs.hsv_to_rgb(2*v % 1, 0.5*v+0.5, abs(0.5*v-0.5)+0.5)
 
 
 if __name__ == '__main__':
