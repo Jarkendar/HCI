@@ -87,7 +87,7 @@ def calcValue(entry, out, piece, all, value):
     if (entry > out):
         return piece - all * value
     else:
-        return all * value - piece +1
+        return all * value - piece + 1
 
 
 def inte(of, to, piece, all, value):
@@ -114,22 +114,9 @@ def inte(of, to, piece, all, value):
 
 def gradient_rgb_wb_custom(v):
     pieces = 7
-    piece = (int)(pieces * v + 1) % 8
-    if (v <= 1 / 7):
-        r, g, b = inte([1, 1, 1], [1, 0, 1], 1, pieces, v)
-    elif (v <= 2 / 7):
-        r, g, b = inte([1, 0, 1], [0, 0, 1], 2, pieces, v)
-    elif (v <= 3 / 7):
-        r, g, b = inte([0, 0, 1], [0, 1, 1], 3, pieces, v)
-    elif (v <= 4 / 7):
-        r, g, b = inte([0, 1, 1], [0, 1, 0], 4, pieces, v)
-    elif (v <= 5 / 7):
-        r, g, b = inte([0, 1, 0], [1, 1, 0], 5, pieces, v)
-    elif (v <= 6 / 7):
-        r, g, b = inte([1, 1, 0], [1, 0, 0], 6, pieces, v)
-    else:
-        r, g, b = inte([1, 0, 0], [0, 0, 0], 7, pieces, v)
-
+    colors = [[1, 1, 1], [1, 0, 1], [0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]]
+    i = (int) (np.floor(pieces*v))%7
+    r, g, b = inte(colors[i], colors[i + 1], i+1, pieces, v)
     return (r, g, b)
 
 
