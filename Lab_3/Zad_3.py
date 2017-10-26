@@ -80,8 +80,8 @@ def gradient_hsv_bw(v):
     return cs.hsv_to_rgb(h, s, v)
 
 
-def calculateHue(start, all, value):
-    return ((start + value * start * all) / 360) % 1
+def calculateHue(startAngle, countAllPieces, value):
+    return ((startAngle + value * startAngle * countAllPieces) / 360) % 1
 
 
 def gradient_hsv_gbr(v):
