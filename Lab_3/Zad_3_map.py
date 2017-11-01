@@ -29,12 +29,16 @@ def interpolateColor(fromColor, toColor, numberOfPiece, countAllPieces, value):
     return r, g, b
 
 
-def gradient_rgb_bgr(v):
+def gradient_rgb_bgr(v, light=1):
     pieces = 2
     colors = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
     i = int(np.floor(pieces * v)) % pieces
     r, g, b = interpolateColor(colors[i], colors[i + 1], i + 1, pieces, v)
-    return r, g, b
+
+    hue, saturation, lightness = cs.rgb_to_hsv(r, g, b)
+    lightness = light / 4 + 0.75
+
+    return cs.hsv_to_rgb(hue, saturation, lightness)
 
 
 def readDataFromFile(name):
@@ -67,6 +71,17 @@ def convertHeightsToRGBs(heights, maxHeight):
     return rgbMatrix
 
 
+def convertHeightToRGBsWithShadow(heights, maxHeight, cosinuses):
+    rgbMatrix = []
+    for y in range(0, 500):
+        row = []
+        for x in range(0, 500):
+            r, g, b = gradient_rgb_bgr(heights[y][x] / maxHeight, cosinuses[x][y])
+            row.append([r, g, b])
+        rgbMatrix.append(row)
+    return rgbMatrix
+
+
 def calculateCosinusesAlpha(heightMatrix, s):
     cosinuses = []
     for y in range(0, 499):
@@ -87,7 +102,7 @@ def calculateCosinusesAlpha(heightMatrix, s):
     return cosinuses
 
 
-def createMap(rgbMatrix):
+def createMap(rgbMatrix, name):
     image = Image.new("RGB", (len(rgbMatrix), len(rgbMatrix[0])), "white")  # create image
     pixels = image.load()
     for row in range(image.size[0]):
@@ -95,19 +110,20 @@ def createMap(rgbMatrix):
             pixels[row, column] = (int(rgbMatrix[column][row][0] * 255)
                                    , int(rgbMatrix[column][row][1] * 255)
                                    , int(rgbMatrix[column][row][2] * 255))
-    image.save("map.bmp")
+    image.save(name)
 
 
 def main():
     heightMatrix, maxHeight = readDataFromFile("big_dem.csv")
     rgbMatrix = convertHeightsToRGBs(heightMatrix, maxHeight)
 
-    sun = [0, 0, 100000]
+    sun = [0, 0, 100]
     coses = calculateCosinusesAlpha(heightMatrix, sun)
-    print(len(coses))
-    print(len(coses[0]))
 
-    createMap(rgbMatrix)
+    rgbMatrixShadow = convertHeightToRGBsWithShadow(heightMatrix, maxHeight, coses)
+
+    createMap(rgbMatrix, "map.bmp")
+    createMap(rgbMatrixShadow, "mapShadow.bmp")
 
 
 if __name__ == '__main__':
