@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 from PIL import Image
+import colorsys as cs
 
 
 def calculateValuePieceOfColor(inColor, outColor, numberOfPiece, countAllPieces, value):
@@ -66,6 +67,26 @@ def convertHeightsToRGBs(heights, maxHeight):
     return rgbMatrix
 
 
+def calculateCosinusesAlpha(heightMatrix, s):
+    cosinuses = []
+    for y in range(0, 499):
+        rowCoses = []
+        for x in range(0, 499):
+            v = [0, 1, heightMatrix[x][y] - heightMatrix[x][y + 1]]
+            h = [1, 0, heightMatrix[x][y] - heightMatrix[x + 1][y]]
+            p = [v[1] * h[2] - v[2] * h[1], v[2] * h[0] - v[0] * h[2], v[0] * h[1] - v[1] * h[0]]
+            cos = (p[0] * s[0] + p[1] * s[1] + p[2] * s[2]) / (
+                np.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]) * np.sqrt(s[0] * s[0] + s[1] * s[1] + s[2] * s[2]))
+            rowCoses.append(abs(cos))
+        rowCoses.append(1)
+        cosinuses.append(rowCoses)
+    row = []
+    for i in range(0, 500):
+        row.append(1)
+    cosinuses.append(row)
+    return cosinuses
+
+
 def createMap(rgbMatrix):
     image = Image.new("RGB", (len(rgbMatrix), len(rgbMatrix[0])), "white")  # create image
     pixels = image.load()
@@ -80,6 +101,12 @@ def createMap(rgbMatrix):
 def main():
     heightMatrix, maxHeight = readDataFromFile("big_dem.csv")
     rgbMatrix = convertHeightsToRGBs(heightMatrix, maxHeight)
+
+    sun = [0, 0, 100000]
+    coses = calculateCosinusesAlpha(heightMatrix, sun)
+    print(len(coses))
+    print(len(coses[0]))
+
     createMap(rgbMatrix)
 
 
