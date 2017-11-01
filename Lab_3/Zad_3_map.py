@@ -82,19 +82,33 @@ def convertHeightToRGBsWithShadow(heights, maxHeight, cosinuses):
     return rgbMatrix
 
 
-def calculateCosinusesAlpha(heightMatrix, s):
+def calculateCosinusesAlpha(heightMatrix, sunPosition):
     cosinuses = []
     for y in range(0, 499):
-        rowCoses = []
+        row = []
         for x in range(0, 499):
-            v = [0, 1, heightMatrix[x][y] - heightMatrix[x][y + 1]]
-            h = [1, 0, heightMatrix[x][y] - heightMatrix[x + 1][y]]
-            p = [v[1] * h[2] - v[2] * h[1], v[2] * h[0] - v[0] * h[2], v[0] * h[1] - v[1] * h[0]]
-            cos = (p[0] * s[0] + p[1] * s[1] + p[2] * s[2]) / (
-                np.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]) * np.sqrt(s[0] * s[0] + s[1] * s[1] + s[2] * s[2]))
-            rowCoses.append(abs(cos))
-        rowCoses.append(1)
-        cosinuses.append(rowCoses)
+            vertical = [0, 1, heightMatrix[x][y] - heightMatrix[x][
+                y + 1]]  # liczenie wektora pionowo w macierzy do sąsiedniej komórki
+            horizontal = [1, 0, heightMatrix[x][y] - heightMatrix[x + 1][
+                y]]  # liczenie wektora poziomo w macierzy do sąsiedniej komórki
+            perpendicularToVH = [vertical[1] * horizontal[2] - vertical[2] * horizontal[1],
+                                 # wektor prostopadły z iloczynu wektorowego
+                                 vertical[2] * horizontal[0] - vertical[0] * horizontal[2],
+                                 vertical[0] * horizontal[1] - vertical[1] * horizontal[0]]
+            vectorToSun = [x - sunPosition[0], y - sunPosition[1],  # wektor od punktu do słońca
+                           heightMatrix[x][y] - sunPosition[2]]
+            cos = (  # cos między wektorem do słońca a prostopadłym do płaszczyzny
+                      perpendicularToVH[0] * vectorToSun[0] + perpendicularToVH[1] * vectorToSun[1] + perpendicularToVH[
+                          2] *
+                      vectorToSun[2]) / (
+                      np.sqrt(
+                          perpendicularToVH[0] * perpendicularToVH[0] + perpendicularToVH[1] * perpendicularToVH[1] +
+                          perpendicularToVH[2] * perpendicularToVH[2]) * np.sqrt(
+                          vectorToSun[0] * vectorToSun[0] + vectorToSun[1] * vectorToSun[1] + vectorToSun[2] *
+                          vectorToSun[2]))
+            row.append(abs(cos))
+        row.append(1)
+        cosinuses.append(row)
     row = []
     for i in range(0, 500):
         row.append(1)
@@ -117,7 +131,7 @@ def main():
     heightMatrix, maxHeight = readDataFromFile("big_dem.csv")
     rgbMatrix = convertHeightsToRGBs(heightMatrix, maxHeight)
 
-    sun = [0, 0, 100]
+    sun = [0, 0, 100000]
     coses = calculateCosinusesAlpha(heightMatrix, sun)
 
     rgbMatrixShadow = convertHeightToRGBsWithShadow(heightMatrix, maxHeight, coses)
