@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
 import csv
 import numpy as np
+from PIL import Image
 
 
 def calculateValuePieceOfColor(inColor, outColor, numberOfPiece, countAllPieces, value):
@@ -66,9 +66,21 @@ def convertHeightsToRGBs(heights, maxHeight):
     return rgbMatrix
 
 
+def createMap(rgbMatrix):
+    image = Image.new("RGB", (len(rgbMatrix), len(rgbMatrix[0])), "white")  # create image
+    pixels = image.load()
+    for row in range(image.size[0]):
+        for column in range(image.size[1]):
+            pixels[row, column] = (int(rgbMatrix[column][row][0] * 255)
+                                   , int(rgbMatrix[column][row][1] * 255)
+                                   , int(rgbMatrix[column][row][2] * 255))
+    image.save("map.bmp")
+
+
 def main():
     heightMatrix, maxHeight = readDataFromFile("big_dem.csv")
     rgbMatrix = convertHeightsToRGBs(heightMatrix, maxHeight)
+    createMap(rgbMatrix)
 
 
 if __name__ == '__main__':
