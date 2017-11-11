@@ -1,4 +1,19 @@
+from PIL import Image as im
+
+
+def readBitmapFromFile(fileName):
+    bitmap = im.open(fileName)
+    print(fileName)
+    pixels = bitmap.load()
+    print(pixels[0, 0])
+
+
 def main():
+    for i in range(0, 2):
+        for j in range(0, 10):
+            planeFileName = "samolot" + str(i) + str(j) + ".jpg"
+            readBitmapFromFile(planeFileName)
+
 
 if __name__ == '__main__':
     main()
