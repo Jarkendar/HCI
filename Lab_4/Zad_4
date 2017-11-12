@@ -22,7 +22,6 @@ def writeBitmapToFile(bitmap):
 
 def calculateAveragesRGBColor(bitmap):
     rSum, gSum, bSum = 0, 0, 0
-    print(bitmap.shape[0])
     for row in bitmap:
         for column in row:
             rSum += column[0]
@@ -32,10 +31,33 @@ def calculateAveragesRGBColor(bitmap):
     return [rSum / pixelsCount, gSum / pixelsCount, bSum / pixelsCount]
 
 
+def thresholding(bitmap, averagesRGB, stdRGB):
+    bit = []
+    for row in bitmap:
+        rowColors = []
+        for column in row:
+            colors = []
+            if (column[0] > averagesRGB[0] - stdRGB):
+                colors.append(255)
+            else:
+                colors.append(column[0])
+            if (column[1] > averagesRGB[1] - stdRGB):
+                colors.append(255)
+            else:
+                colors.append(column[1])
+            if (column[2] > averagesRGB[2] - stdRGB):
+                colors.append(255)
+            else:
+                colors.append(column[2])
+            rowColors.append(colors)
+        bit.append(rowColors)
+    return bit
+
+
 def main():
     bitmaps = readBitmaps()
-    print(calculateAveragesRGBColor(bitmaps[1]))
-    writeBitmapToFile(bitmaps[1])
+    bitmap = thresholding(bitmaps[1], calculateAveragesRGBColor(bitmaps[1]), np.std(bitmaps[1]))
+    writeBitmapToFile(bitmap)
 
 
 if __name__ == '__main__':
