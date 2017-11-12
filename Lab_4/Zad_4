@@ -1,5 +1,8 @@
 from PIL import Image as im
 import numpy as np
+from scipy import ndimage
+import skimage.morphology as mp
+from skimage.filters.edges import convolve
 
 
 def readBitmapFromFile(fileName):
@@ -32,7 +35,7 @@ def calculateAveragesRGBColor(bitmap):
 
 
 def thresholding(bitmap, averagesRGB, stdRGB):
-    bit = []
+    thresholdingbitmap = []
     for row in bitmap:
         rowColors = []
         for column in row:
@@ -40,23 +43,43 @@ def thresholding(bitmap, averagesRGB, stdRGB):
             if (column[0] > averagesRGB[0] - stdRGB):
                 colors.append(255)
             else:
-                colors.append(column[0])
+                colors.append(0)
             if (column[1] > averagesRGB[1] - stdRGB):
                 colors.append(255)
             else:
-                colors.append(column[1])
+                colors.append(0)
             if (column[2] > averagesRGB[2] - stdRGB):
                 colors.append(255)
             else:
-                colors.append(column[2])
+                colors.append(0)
             rowColors.append(colors)
-        bit.append(rowColors)
-    return bit
+        thresholdingbitmap.append(rowColors)
+    return thresholdingbitmap
+
+
+def createOnesMask(size):
+    M = np.ones([size, size])
+    M = M / (size ** 2)
+    print(M)
+    return M
+
+
+def dilation(bitmap, mask):
+    return np.abs(convolve(bitmap, mask[:, :, None]))
+
+
+def detectEdges(bitmap):
+    detectBitmap = ndimage.sobel(bitmap, 0)
+    return detectBitmap
 
 
 def main():
     bitmaps = readBitmaps()
     bitmap = thresholding(bitmaps[1], calculateAveragesRGBColor(bitmaps[1]), np.std(bitmaps[1]))
+    bitmap = dilation(bitmap, createOnesMask(3))
+    bitmap = dilation(bitmap, createOnesMask(3))
+    bitmap = dilation(bitmap, createOnesMask(3))
+
     writeBitmapToFile(bitmap)
 
 
