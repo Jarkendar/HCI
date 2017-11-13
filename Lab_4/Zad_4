@@ -13,10 +13,7 @@ maskEdgeVertical = np.array([[1, 0, -1],
                              [1, 0, -1]]) / 8
 maskDilatation = np.array([[0, 1, 0],
                            [1, 4, 1],
-                           [0, 1, 0]]) / 9
-maskErosion = np.array([[0, -1, 0],
-                        [-1, 4, -1],
-                        [0, -1, 0]]) / 8
+                           [0, 1, 0]]) / 8
 
 
 def readBitmapFromFile(fileName):
@@ -28,9 +25,9 @@ def readBitmaps():
     fileNames = []
     for i in range(0, 2):
         for j in range(0, 10):
-            fileNames.append("samolot" + str(i) + str(j) + ".jpg")
+            fileNames.append("samolot" + str(i) + str(j) + "a.jpg")
             bitmaps.append(readBitmapFromFile("pictures/samolot" + str(i) + str(j) + ".jpg"))
-    fileNames.append("samolot20.jpg")
+    fileNames.append("samolot20a.jpg")
     bitmaps.append(readBitmapFromFile("pictures/samolot20.jpg"))
     return bitmaps, fileNames
 
@@ -96,6 +93,18 @@ def rgbToGrayScale(bitmap):
     return grayBitmap
 
 
+def reverse(bitmap):
+    reverseBitmap = []
+    for row in bitmap:
+        reverseRow = []
+        for column in row:
+            r = 255-column[0]
+            g = 255-column[1]
+            b = 255-column[2]
+            reverseRow.append([r,g,b])
+        reverseBitmap.append(reverseRow)
+    return reverseBitmap
+
 def changeColorToWhite(bitmap):
     grayBitmap = []
     for row in bitmap:
@@ -114,8 +123,14 @@ def changeColorToWhite(bitmap):
 def createAllEdgeImage(bitmaps, fileNames):
     for i in range(0, len(bitmaps)):
         bitmap = thresholding(bitmaps[i], calculateAveragesRGBColor(bitmaps[i]), np.std(bitmaps[i]))
-        # bitmap = createBitmapWithMask(bitmap,maskDilatation)
-        #  bitmap = createBitmapWithMask(bitmap,maskErosion)
+        bitmap = createBitmapWithMask(bitmap, maskDilatation)
+        bitmap = createBitmapWithMask(bitmap, maskDilatation)
+        bitmap = changeColorToWhite(bitmap)
+        bitmap = reverse(bitmap)
+        bitmap = createBitmapWithMask(bitmap, maskDilatation)
+        bitmap = createBitmapWithMask(bitmap, maskDilatation)
+        bitmap = changeColorToWhite(bitmap)
+        bitmap = reverse(bitmap)
         bitmapHor = createBitmapWithMask(bitmap, maskEdgeHorizontal)
         bitmapVer = createBitmapWithMask(bitmap, maskEdgeVertical)
         bitmap = (bitmapHor + bitmapVer) / 2
@@ -125,8 +140,27 @@ def createAllEdgeImage(bitmaps, fileNames):
         print("Skończyłem obraz nr", i)
 
 
+def createImage(bitmap, fileName):
+    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap))
+    bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    bitmap = changeColorToWhite(bitmap)
+    bitmap = reverse(bitmap)
+    bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    bitmap = changeColorToWhite(bitmap)
+    bitmap = reverse(bitmap)
+    bitmapHor = createBitmapWithMask(bitmap, maskEdgeHorizontal)
+    bitmapVer = createBitmapWithMask(bitmap, maskEdgeVertical)
+    bitmap = (bitmapHor + bitmapVer) / 2
+    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap))
+    bitmap = changeColorToWhite(bitmap)
+    writeBitmapToFile(bitmap, fileName)
+
+
 def main():
     bitmaps, fileNames = readBitmaps()
+    #createImage(bitmaps[1], "test.jpg")
     createAllEdgeImage(bitmaps, fileNames)
 
 
