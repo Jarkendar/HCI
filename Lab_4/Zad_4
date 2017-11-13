@@ -4,6 +4,9 @@ from scipy import ndimage
 import skimage.morphology as mp
 from skimage.filters.edges import convolve
 from skimage import color
+from skimage import img_as_ubyte
+from matplotlib import pylab as plt
+import colorsys as cs
 
 maskEdgeHorizontal = np.array([[1, 2, 1],
                                [0, 0, 0],
@@ -25,9 +28,9 @@ def readBitmaps():
     fileNames = []
     for i in range(0, 2):
         for j in range(0, 10):
-            fileNames.append("samolot" + str(i) + str(j) + "a.jpg")
+            fileNames.append("samolot" + str(i) + str(j) + "b.jpg")
             bitmaps.append(readBitmapFromFile("pictures/samolot" + str(i) + str(j) + ".jpg"))
-    fileNames.append("samolot20a.jpg")
+    fileNames.append("samolot20b.jpg")
     bitmaps.append(readBitmapFromFile("pictures/samolot20.jpg"))
     return bitmaps, fileNames
 
@@ -45,7 +48,7 @@ def calculateAveragesRGBColor(bitmap):
             rSum += column[0]
             gSum += column[1]
             bSum += column[2]
-    pixelsCount = bitmap.shape[0] * bitmap.shape[1]
+    pixelsCount = len(bitmap) * len(bitmap[0])
     return [rSum / pixelsCount, gSum / pixelsCount, bSum / pixelsCount]
 
 
@@ -120,13 +123,29 @@ def changeColorToWhite(bitmap):
     return grayBitmap
 
 
+def makeGrayscale(bitmap):
+    withoutBlueBitmap = []
+    for row in bitmap:
+        rowColors = []
+        for column in row:
+            h,s,v = cs.rgb_to_hsv(column[0],column[1],column[2])
+            s = 0
+            r,g,b = cs.hsv_to_rgb(h,s,v)
+            rowColors.append([r, g, b])
+        withoutBlueBitmap.append(rowColors)
+    return withoutBlueBitmap
+
+
 def createAllEdgeImage(bitmaps, fileNames):
     for i in range(0, len(bitmaps)):
-        bitmap = thresholding(bitmaps[i], calculateAveragesRGBColor(bitmaps[i]), np.std(bitmaps[i]))
+        bitmap = makeGrayscale(bitmaps[i])
+        bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap)*1.5vcfb57urd)
+        bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = changeColorToWhite(bitmap)
         bitmap = reverse(bitmap)
+        bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = changeColorToWhite(bitmap)
@@ -141,26 +160,44 @@ def createAllEdgeImage(bitmaps, fileNames):
 
 
 def createImage(bitmap, fileName):
-    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap))
+    bitmap = makeGrayscale(bitmap)
+    im.fromarray(np.uint8(bitmap)).show()
+    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap)*1.5)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    im.fromarray(np.uint8(bitmap)).show()
+    bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = changeColorToWhite(bitmap)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = reverse(bitmap)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    im.fromarray(np.uint8(bitmap)).show()
+    bitmap = createBitmapWithMask(bitmap,maskDilatation)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = changeColorToWhite(bitmap)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = reverse(bitmap)
+    im.fromarray(np.uint8(bitmap)).show()
     bitmapHor = createBitmapWithMask(bitmap, maskEdgeHorizontal)
     bitmapVer = createBitmapWithMask(bitmap, maskEdgeVertical)
     bitmap = (bitmapHor + bitmapVer) / 2
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap))
+    im.fromarray(np.uint8(bitmap)).show()
     bitmap = changeColorToWhite(bitmap)
+    im.fromarray(np.uint8(bitmap)).show()
     writeBitmapToFile(bitmap, fileName)
 
 
 def main():
     bitmaps, fileNames = readBitmaps()
-    #createImage(bitmaps[1], "test.jpg")
+    #createImage(bitmaps[2], "test.jpg")
     createAllEdgeImage(bitmaps, fileNames)
 
 
