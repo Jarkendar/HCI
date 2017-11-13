@@ -7,6 +7,7 @@ from skimage import color
 from skimage import img_as_ubyte
 from matplotlib import pylab as plt
 import colorsys as cs
+import threading
 
 maskEdgeHorizontal = np.array([[1, 2, 1],
                                [0, 0, 0],
@@ -19,6 +20,16 @@ maskDilatation = np.array([[0, 1, 0],
                            [0, 1, 0]]) / 8
 
 
+class ThreadBitmapCreate(threading.Thread):
+    def __init__(self, bitmap, filename):
+        threading.Thread.__init__(self)
+        self.bitmap = bitmap
+        self.filename = filename
+
+    def run(self):
+        createImage(self.bitmap, self.filename)
+
+
 def readBitmapFromFile(fileName):
     return np.asarray(im.open(fileName))
 
@@ -26,11 +37,12 @@ def readBitmapFromFile(fileName):
 def readBitmaps():
     bitmaps = []
     fileNames = []
+    sufix = "dstd2.jpg"
     for i in range(0, 2):
         for j in range(0, 10):
-            fileNames.append("samolot" + str(i) + str(j) + "b.jpg")
+            fileNames.append("samolot" + str(i) + str(j) + sufix)
             bitmaps.append(readBitmapFromFile("pictures/samolot" + str(i) + str(j) + ".jpg"))
-    fileNames.append("samolot20b.jpg")
+    fileNames.append("samolot20"+sufix)
     bitmaps.append(readBitmapFromFile("pictures/samolot20.jpg"))
     return bitmaps, fileNames
 
@@ -101,12 +113,13 @@ def reverse(bitmap):
     for row in bitmap:
         reverseRow = []
         for column in row:
-            r = 255-column[0]
-            g = 255-column[1]
-            b = 255-column[2]
-            reverseRow.append([r,g,b])
+            r = 255 - column[0]
+            g = 255 - column[1]
+            b = 255 - column[2]
+            reverseRow.append([r, g, b])
         reverseBitmap.append(reverseRow)
     return reverseBitmap
+
 
 def changeColorToWhite(bitmap):
     grayBitmap = []
@@ -128,9 +141,9 @@ def makeGrayscale(bitmap):
     for row in bitmap:
         rowColors = []
         for column in row:
-            h,s,v = cs.rgb_to_hsv(column[0],column[1],column[2])
+            h, s, v = cs.rgb_to_hsv(column[0], column[1], column[2])
             s = 0
-            r,g,b = cs.hsv_to_rgb(h,s,v)
+            r, g, b = cs.hsv_to_rgb(h, s, v)
             rowColors.append([r, g, b])
         withoutBlueBitmap.append(rowColors)
     return withoutBlueBitmap
@@ -139,7 +152,7 @@ def makeGrayscale(bitmap):
 def createAllEdgeImage(bitmaps, fileNames):
     for i in range(0, len(bitmaps)):
         bitmap = makeGrayscale(bitmaps[i])
-        bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap)*1.5vcfb57urd)
+        bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap) * 1.5)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
         bitmap = createBitmapWithMask(bitmap, maskDilatation)
@@ -161,44 +174,36 @@ def createAllEdgeImage(bitmaps, fileNames):
 
 def createImage(bitmap, fileName):
     bitmap = makeGrayscale(bitmap)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap)*1.5)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = createBitmapWithMask(bitmap,maskDilatation)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = createBitmapWithMask(bitmap,maskDilatation)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = createBitmapWithMask(bitmap,maskDilatation)
-    im.fromarray(np.uint8(bitmap)).show()
+    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap) * 2.0)
+    bitmap = createBitmapWithMask(bitmap, maskDilatation)
+    bitmap = createBitmapWithMask(bitmap, maskDilatation)
+    bitmap = createBitmapWithMask(bitmap, maskDilatation)
     bitmap = changeColorToWhite(bitmap)
-    im.fromarray(np.uint8(bitmap)).show()
     bitmap = reverse(bitmap)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = createBitmapWithMask(bitmap,maskDilatation)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = createBitmapWithMask(bitmap,maskDilatation)
-    im.fromarray(np.uint8(bitmap)).show()
-    bitmap = createBitmapWithMask(bitmap,maskDilatation)
-    im.fromarray(np.uint8(bitmap)).show()
+    bitmap = createBitmapWithMask(bitmap, maskDilatation)
+    bitmap = createBitmapWithMask(bitmap, maskDilatation)
+    bitmap = createBitmapWithMask(bitmap, maskDilatation)
     bitmap = changeColorToWhite(bitmap)
-    im.fromarray(np.uint8(bitmap)).show()
     bitmap = reverse(bitmap)
-    im.fromarray(np.uint8(bitmap)).show()
     bitmapHor = createBitmapWithMask(bitmap, maskEdgeHorizontal)
     bitmapVer = createBitmapWithMask(bitmap, maskEdgeVertical)
     bitmap = (bitmapHor + bitmapVer) / 2
-    im.fromarray(np.uint8(bitmap)).show()
     bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap))
-    im.fromarray(np.uint8(bitmap)).show()
     bitmap = changeColorToWhite(bitmap)
-    im.fromarray(np.uint8(bitmap)).show()
     writeBitmapToFile(bitmap, fileName)
+    print("Skończyłem obraz ", fileName)
+
+
+def createThreads(bitmaps, fileNames):
+    for i in range(0, len(bitmaps)):
+        ThreadBitmapCreate(bitmaps[i], fileNames[i]).start()
 
 
 def main():
     bitmaps, fileNames = readBitmaps()
-    #createImage(bitmaps[2], "test.jpg")
-    createAllEdgeImage(bitmaps, fileNames)
+    # createImage(bitmaps[2], "test.jpg")
+    # createAllEdgeImage(bitmaps, fileNames)
+    createThreads(bitmaps, fileNames)
 
 
 if __name__ == '__main__':
