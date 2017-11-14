@@ -37,12 +37,12 @@ def readBitmapFromFile(fileName):
 def readBitmaps():
     bitmaps = []
     fileNames = []
-    sufix = "dstd2.jpg"
+    sufix = "dstd1_5.jpg"
     for i in range(0, 2):
         for j in range(0, 10):
             fileNames.append("samolot" + str(i) + str(j) + sufix)
             bitmaps.append(readBitmapFromFile("pictures/samolot" + str(i) + str(j) + ".jpg"))
-    fileNames.append("samolot20"+sufix)
+    fileNames.append("samolot20" + sufix)
     bitmaps.append(readBitmapFromFile("pictures/samolot20.jpg"))
     return bitmaps, fileNames
 
@@ -70,15 +70,25 @@ def thresholding(bitmap, averagesRGB, stdRGB=0):
         rowColors = []
         for column in row:
             colors = []
-            if (column[0] > averagesRGB[0] - stdRGB):
+            avg = averagesRGB[0] - stdRGB
+            if (avg<0): avg = 0
+
+            if (column[0] > avg):
                 colors.append(255)
             else:
                 colors.append(0)
-            if (column[1] > averagesRGB[1] - stdRGB):
+
+            avg = averagesRGB[1] - stdRGB
+            if (avg < 0): avg = 0
+            if (column[1] > avg):
                 colors.append(255)
             else:
                 colors.append(0)
-            if (column[2] > averagesRGB[2] - stdRGB):
+
+
+            avg = averagesRGB[2] - stdRGB
+            if (avg<0): avg = 0
+            if (column[2] > avg):
                 colors.append(255)
             else:
                 colors.append(0)
@@ -172,9 +182,9 @@ def createAllEdgeImage(bitmaps, fileNames):
         print("Skończyłem obraz nr", i)
 
 
-def createImage(bitmap, fileName):
+def createImage(bitmap, fileName = None):
     bitmap = makeGrayscale(bitmap)
-    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap) * 2.0)
+    bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap), np.std(bitmap) * 1.5)
     bitmap = createBitmapWithMask(bitmap, maskDilatation)
     bitmap = createBitmapWithMask(bitmap, maskDilatation)
     bitmap = createBitmapWithMask(bitmap, maskDilatation)
@@ -190,8 +200,11 @@ def createImage(bitmap, fileName):
     bitmap = (bitmapHor + bitmapVer) / 2
     bitmap = thresholding(bitmap, calculateAveragesRGBColor(bitmap))
     bitmap = changeColorToWhite(bitmap)
-    writeBitmapToFile(bitmap, fileName)
+    #writeBitmapToFile(bitmap, fileName)
+    #im.fromarray(np.uint8(bitmap)).show()
+    bitmap = im.fromarray(np.uint8(bitmap)).resize((800,600))
     print("Skończyłem obraz ", fileName)
+    return bitmap
 
 
 def createThreads(bitmaps, fileNames):
@@ -199,11 +212,43 @@ def createThreads(bitmaps, fileNames):
         ThreadBitmapCreate(bitmaps[i], fileNames[i]).start()
 
 
+def createPlot(images,filename):
+    fig = plt.figure(figsize=(60,100))
+    plot = fig.add_subplot(421)
+    plot.imshow(images[0])
+    plot = fig.add_subplot(422)
+    plot.imshow(images[1])
+    plot = fig.add_subplot(423)
+    plot.imshow(images[2])
+    plot = fig.add_subplot(424)
+    plot.imshow(images[3])
+    plot = fig.add_subplot(425)
+    plot.imshow(images[4])
+    plot = fig.add_subplot(426)
+    plot.imshow(images[5])
+    plot = fig.add_subplot(427)
+    plot.imshow(images[6])
+    plot = fig.add_subplot(428)
+    plot.imshow(images[7])
+    fig.savefig(filename)
+
 def main():
     bitmaps, fileNames = readBitmaps()
-    # createImage(bitmaps[2], "test.jpg")
+    images = [bitmaps[0],bitmaps[1],bitmaps[2],bitmaps[5],bitmaps[7],bitmaps[9],bitmaps[16],bitmaps[17]]
+    doneImages = []
+    inputImages = []
+    for bitmap in images:
+        inputImages.append(im.fromarray(np.uint8(bitmap)).resize((800,600)))
+        done = createImage(bitmap)
+        doneImages.append(done)
+
+    createPlot(doneImages, "output.pdf")
+    createPlot(inputImages, "input.pdf")
+
+    #createImage(bitmaps[2], "test.jpg")
     # createAllEdgeImage(bitmaps, fileNames)
-    createThreads(bitmaps, fileNames)
+    # all(bitmaps, fileNames)
+    # createThreads(bitmaps, fileNames)
 
 
 if __name__ == '__main__':
