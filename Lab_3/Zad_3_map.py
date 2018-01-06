@@ -1,7 +1,8 @@
+import colorsys as cs
 import csv
+
 import numpy as np
 from PIL import Image
-import colorsys as cs
 
 
 def calculateValuePieceOfColor(inColor, outColor, numberOfPiece, countAllPieces, value):
