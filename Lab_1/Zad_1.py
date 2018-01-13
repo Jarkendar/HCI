@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import matplotlib.pyplot as plt
 import csv
+
+import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import rc,font_manager
+
 
 def addFunctionToPlot(name, ax, colorName, mStyle, lastLines):
     file = open(name, "r")
@@ -32,8 +33,8 @@ def addFunctionToPlot(name, ax, colorName, mStyle, lastLines):
 
     ax.plot(sizes, averages, color=colorName, marker=mStyle, markevery=25, markeredgecolor='black')
 
-def main():
 
+def main():
     fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(121)
     box = fig.add_subplot(122)
@@ -50,11 +51,11 @@ def main():
     meanprops = dict(marker='o', color='b')
     boxprops = dict(color='b')
 
-    box.boxplot(lastLines,'b+', showmeans=True,meanprops=meanprops, boxprops=boxprops)
+    box.boxplot(lastLines, 'b+', showmeans=True, meanprops=meanprops, boxprops=boxprops)
     box.set_yticks(np.arange(60, 101, 5))
     box.set_ylim(60, 100)
     box.yaxis.tick_right()
-    box.set_xticklabels(["1-Evol-RS", "1-Coev-RS", "2-Coev-RS", "1-Coev", "2-Coev"], rotation=15,family='serif')
+    box.set_xticklabels(["1-Evol-RS", "1-Coev-RS", "2-Coev-RS", "1-Coev", "2-Coev"], rotation=15, family='serif')
     box.grid(linestyle=':')
 
     ax1.set_xlim(0, 500000)
@@ -63,14 +64,14 @@ def main():
     ax1.set_ylabel("Odsetek wygranych gier")
     ax1.set_xticks(np.arange(0, 500001, 100000))
     ax1.set_yticks(np.arange(0.60, 1.01, 0.05))
-    ax1.legend(["1-Evol-RS", "1-Coev-RS", "2-Coev-RS", "1-Coev", "2-Coev"], numpoints= 2)
-    ax1.grid(linestyle=':' )
+    ax1.legend(["1-Evol-RS", "1-Coev-RS", "2-Coev-RS", "1-Coev", "2-Coev"], numpoints=2)
+    ax1.grid(linestyle=':')
 
     ax2.set_xlim(0, 200)
     ax2.set_xlabel("Pokolenie")
     ax2.set_xticks(np.arange(0, 201, 40))
 
-    #plt.show()
+    # plt.show()
     plt.savefig('myplot.pdf')  # zapis do pdf
     plt.show()
     plt.close()

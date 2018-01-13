@@ -1,12 +1,11 @@
 from __future__ import division  # Division in Python 2.7
+
 import matplotlib
 
 matplotlib.use('Agg')  # So that we can render files without GUI
 import matplotlib.pyplot as plt
 from matplotlib import rc
 import numpy as np
-
-from matplotlib import colors
 
 import colorsys as cs
 
