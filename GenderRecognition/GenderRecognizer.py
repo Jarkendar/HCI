@@ -1,20 +1,17 @@
 from __future__ import division
-from pylab import *
 from numpy import *
 from scipy import *
-from ipywidgets import *
-import math as mt
 import soundfile
 import sys
 import scipy.signal
-import glob
+
 
 def nearest2Power(length):
     pow = 0
     number = 2
-    while(number**pow < length):
-        pow+=1
-    return number**(pow-1)
+    while (number ** pow < length):
+        pow += 1
+    return number ** (pow - 1)
 
 
 def main():
